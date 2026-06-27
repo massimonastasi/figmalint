@@ -10,6 +10,7 @@
 import { anthropicProvider } from './anthropic';
 import { OpenAIProvider as openaiProvider } from './openai';
 import { googleProvider } from './google';
+import { githubProvider } from './github';
 import {
   LLMProvider,
   ProviderId,
@@ -29,6 +30,7 @@ export * from './types';
 export { anthropicProvider } from './anthropic';
 export { OpenAIProvider as openaiProvider } from './openai';
 export { googleProvider } from './google';
+export { githubProvider } from './github';
 
 // =============================================================================
 // Provider Registry
@@ -41,12 +43,13 @@ export const providers: ProviderRegistry = {
   anthropic: anthropicProvider,
   openai: openaiProvider,
   google: googleProvider,
+  github: githubProvider,
 };
 
 /**
  * Array of all provider IDs for iteration
  */
-export const providerIds: ProviderId[] = ['anthropic', 'openai', 'google'];
+export const providerIds: ProviderId[] = ['anthropic', 'openai', 'google', 'github'];
 
 /**
  * Provider metadata for UI display
@@ -66,6 +69,11 @@ export const providerMeta: Record<ProviderId, { name: string; icon: string; desc
     name: 'Google (Gemini)',
     icon: '🔵',
     description: 'Gemini models with multimodal understanding and large context windows',
+  },
+  github: {
+    name: 'GitHub Models',
+    icon: '⚫',
+    description: 'OpenAI-compatible models via GitHub Models (PAT auth, separate from Copilot)',
   },
 };
 
@@ -183,7 +191,9 @@ export async function callProvider(
   }
 
   try {
-    console.log(`Making ${provider.name} API call to ${endpoint}...`);
+    // Redact the API key (Google passes it as a ?key= query param) before logging.
+    const safeEndpoint = endpoint.replace(/([?&]key=)[^&]+/, '$1***');
+    console.log(`Making ${provider.name} API call to ${safeEndpoint}...`);
 
     const response = await fetch(endpoint, {
       method: 'POST',

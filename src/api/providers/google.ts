@@ -2,7 +2,7 @@
  * Google (Gemini) LLM Provider Implementation
  *
  * Implements the LLMProvider interface for Google's Generative AI (Gemini) API.
- * Supports Gemini 3.1 Pro, Gemini 3 Flash, and Gemini 2.5 Flash models.
+ * Supports Gemini 3.1 Pro, Gemini 3 Flash, and Gemini 3.1 Flash-Lite models.
  *
  * Note: Google uses URL-based authentication rather than header-based.
  * The API key is appended to the URL as a query parameter.
@@ -17,34 +17,8 @@ import {
   RequestHeaders,
   LLMError,
   LLMErrorCode,
+  GOOGLE_MODELS,
 } from './types';
-
-/**
- * Available Google Gemini models
- */
-export const GOOGLE_MODELS: LLMModel[] = [
-  {
-    id: 'gemini-3.1-pro-preview',
-    name: 'Gemini 3.1 Pro',
-    description: 'Flagship model - Advanced reasoning and agentic capabilities',
-    contextWindow: 1000000,
-    isDefault: false,
-  },
-  {
-    id: 'gemini-3-flash-preview',
-    name: 'Gemini 3 Flash',
-    description: 'Standard model - Frontier-class performance at lower cost, recommended for most tasks',
-    contextWindow: 1000000,
-    isDefault: true,
-  },
-  {
-    id: 'gemini-3.1-flash-lite',
-    name: 'Gemini 3.1 Flash-Lite',
-    description: 'Economy model - GA workhorse optimized for low-latency, high-volume tasks',
-    contextWindow: 1000000,
-    isDefault: false,
-  },
-];
 
 /**
  * Google Gemini API response structure

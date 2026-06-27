@@ -4,6 +4,8 @@ An AI-powered Figma plugin that audits components for design system compliance, 
 
 FigmaLint analyzes your components against real standards, surfaces hard-coded values and naming issues, and produces structured documentation ready for developer handoff or AI code generation.
 
+> **This is an enhanced fork of [southleft/figmalint](https://github.com/southleft/figmalint).** It adds a 4th AI provider (GitHub Models), a reorganized tabbed UI, a header model indicator, build/security fixes, and a dead-code cleanup. See [What's new in this fork](#whats-new-in-this-fork).
+
 **[Install from Figma Community](https://www.figma.com/community/plugin/1521241390290871981/figmalint)**
 
 ## Features
@@ -12,9 +14,10 @@ FigmaLint analyzes your components against real standards, surfaces hard-coded v
 
 Choose your preferred AI provider and model:
 
-- **Anthropic** — Claude Opus 4.5, Sonnet 4.5, Haiku 4.5
-- **OpenAI** — GPT-5.2, GPT-5.2 Pro, GPT-5 Mini
-- **Google** — Gemini 3 Pro, Gemini 2.5 Pro, Gemini 2.5 Flash
+- **Anthropic** — Claude Opus 4.7, Sonnet 4.6, Haiku 4.5
+- **OpenAI** — GPT-5.5, GPT-5.4 Mini, GPT-5.4 Nano
+- **Google** — Gemini 3.1 Pro, Gemini 3 Flash, Gemini 3.1 Flash-Lite
+- **GitHub Models** — GPT-4o, GPT-4o mini, Llama 3.3 70B (OpenAI-compatible API, authenticated with a GitHub fine-grained PAT; separate quota from a Copilot subscription)
 
 Switch providers and models at any time. API keys are stored per provider and auto-detected from key format.
 
@@ -88,14 +91,16 @@ Three export formats:
 2. `npm install`
 3. `npm run build`
 4. In Figma: Plugins > Development > Import plugin from manifest
-5. Select the `manifest.json` from the project root
+5. Select `manifest.json` from the project root (build it first — it points to `dist/code.js`)
 
 ### Setup
 
-1. Select a provider (Anthropic, OpenAI, or Google)
-2. Choose a model
-3. Enter your API key
-4. Select a component and click Analyze
+1. Open the **Configuration** tab
+2. Select a provider (Anthropic, OpenAI, Google, or GitHub Models)
+3. Choose a model
+4. Enter your API key (for GitHub Models, a GitHub fine-grained PAT with the **Models** permission)
+5. Save the key — the **Analyze** and **Chat** tabs unlock once a provider is configured
+6. Select a component and click Analyze
 
 ## Architecture
 
@@ -110,7 +115,8 @@ src/
 │       ├── index.ts             # Provider registry and routing
 │       ├── anthropic.ts         # Anthropic (Claude) provider
 │       ├── openai.ts            # OpenAI (GPT) provider
-│       └── google.ts            # Google (Gemini) provider
+│       ├── google.ts            # Google (Gemini) provider
+│       └── github.ts            # GitHub Models provider (OpenAI-compatible)
 ├── core/
 │   ├── component-analyzer.ts    # Component analysis and prompt building
 │   ├── token-analyzer.ts        # Design token detection and categorization
@@ -123,23 +129,29 @@ src/
 └── utils/
     └── figma-helpers.ts         # Figma API utilities
 
-ui-enhanced.html                 # Plugin interface (single-file HTML/CSS/JS)
+scripts/
+└── selfcheck.ts                 # Runnable self-check for provider key detection/validation
+
+ui-enhanced.html                 # Plugin interface (single-file HTML/CSS/JS) — Analyze / Chat / Configuration tabs
 ```
+
+> The build bundles `src/code.ts` → `dist/code.js` with esbuild. `dist/` is generated, not committed — run `npm run build` before importing into Figma. The root `manifest.json` references `dist/code.js` and `ui-enhanced.html`.
 
 ## Development
 
 ### Prerequisites
 
 - Node.js 16+
-- An API key from [Anthropic](https://console.anthropic.com), [OpenAI](https://platform.openai.com), or [Google AI Studio](https://aistudio.google.com)
+- An API key from [Anthropic](https://console.anthropic.com), [OpenAI](https://platform.openai.com), [Google AI Studio](https://aistudio.google.com), or a [GitHub fine-grained PAT](https://github.com/settings/personal-access-tokens) with the **Models** permission
 
 ### Commands
 
 ```bash
 npm install          # Install dependencies
 npm run dev          # Development build with watch mode
-npm run build        # Production build
+npm run build        # Production build (outputs dist/code.js)
 npm run lint         # Type checking
+npm run test         # Run the provider key-detection/validation self-check
 npm run clean        # Clean build artifacts
 ```
 
@@ -150,6 +162,27 @@ npm run clean        # Clean build artifacts
 - Analysis calls go directly to the selected provider's API
 - Auto-fix operations modify only the properties you approve
 - Open source
+
+## What's new in this fork
+
+Changes made on top of the original [southleft/figmalint](https://github.com/southleft/figmalint):
+
+### New features
+
+- **GitHub Models provider (4th provider).** OpenAI-compatible inference via `https://models.github.ai`, authenticated with a GitHub fine-grained PAT (Models permission). Same per-provider key storage and auto-detection as the others. This is GitHub Models' own rate-limited quota — *not* a Copilot subscription. (GitHub Copilot's editor API is undocumented and against its Terms of Service, so it is intentionally not integrated.)
+- **Tabbed interface.** The UI is now organized into **Analyze**, **Chat**, and **Configuration** tabs. Provider/key/model setup lives in its own Configuration tab instead of an inline card.
+- **Provider gating.** Until a provider is configured, the Analyze and Chat tabs are disabled and the plugin opens on Configuration. Saving a key unlocks them and jumps to Analyze.
+- **Header model indicator.** The active provider and model are shown in the header, right-aligned opposite the logo, and stay in sync with the dropdowns.
+- **Version in the title.** The plugin version is shown in the UI title and the Figma plugin name (`manifest.json`).
+
+### Fixes & maintenance
+
+- **Security:** the Google API key (passed as a `?key=` query param) is no longer written to the console — it's redacted in request logging.
+- **Build:** fixed `npm run build` on Windows — replaced unix `rm`/`cp` scripts with cross-platform Node, and removed an invalid `--global-name=''` esbuild flag that broke the bundle. `dist/` is no longer committed (generated by `npm run build`); the root `manifest.json` now points at `dist/code.js`.
+- **Dead code removed:** unused `fetchClaude`, `createDesignAnalysisPrompt`, `createMCPAugmentedPrompt`, and the entire unused `createMCPEnhancedAnalysis` MCP chain (~380 lines).
+- **De-duplication:** provider model lists now have a single source of truth in `api/providers/types.ts` instead of being redefined per provider file.
+- **Tests:** added `npm run test` — a dependency-free self-check (`scripts/selfcheck.ts`, bundled with esbuild) for provider key detection and format validation.
+- **Docs:** corrected the model lineups and manual-installation steps.
 
 ## Contributing
 
@@ -164,9 +197,9 @@ ISC — see [LICENSE](LICENSE) for details.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/southleft/figmalint/issues)
+- **Issues (this fork)**: [GitHub Issues](https://github.com/massimonastasi/figmalint/issues)
 - **Discussions**: Share ideas and get help from the community
 
 ---
 
-Built by [Southleft](https://southleft.com)
+Originally built by [Southleft](https://southleft.com) ([southleft/figmalint](https://github.com/southleft/figmalint)); this fork maintained by [massimonastasi](https://github.com/massimonastasi).

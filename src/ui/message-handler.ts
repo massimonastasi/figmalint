@@ -61,6 +61,11 @@ function isValidApiKeyFormat(apiKey: string, provider: ProviderId = selectedProv
         trimmed.length >= 30 &&
         trimmed.length <= 100
       );
+    case 'github':
+      return (
+        (trimmed.startsWith('github_pat_') || trimmed.startsWith('ghp_')) &&
+        trimmed.length >= 20
+      );
     default:
       return false;
   }

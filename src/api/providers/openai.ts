@@ -13,34 +13,8 @@ import {
   RequestHeaders,
   LLMError,
   LLMErrorCode,
+  OPENAI_MODELS,
 } from './types';
-
-/**
- * Available OpenAI models
- */
-export const OPENAI_MODELS: LLMModel[] = [
-  {
-    id: 'gpt-5.5',
-    name: 'GPT-5.5',
-    description: 'Flagship model - Frontier reasoning and agentic capabilities for complex coding and analysis',
-    contextWindow: 1000000,
-    isDefault: false,
-  },
-  {
-    id: 'gpt-5.4-mini',
-    name: 'GPT-5.4 Mini',
-    description: 'Standard model - Strong coding and reasoning at lower cost, recommended for most tasks',
-    contextWindow: 400000,
-    isDefault: true,
-  },
-  {
-    id: 'gpt-5.4-nano',
-    name: 'GPT-5.4 Nano',
-    description: 'Economy model - Fastest and cheapest for high-volume tasks',
-    contextWindow: 400000,
-    isDefault: false,
-  },
-];
 
 /**
  * OpenAI API response structure

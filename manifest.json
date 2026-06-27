@@ -1,8 +1,8 @@
 {
-  "name": "FigmaLint",
+  "name": "FigmaLint 2.5.3",
   "id": "1521241390290871981",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/code.js",
   "ui": "ui-enhanced.html",
   "editorType": ["figma"],
   "permissions": ["currentuser", "teamlibrary"],
@@ -12,6 +12,7 @@
       "https://api.anthropic.com",
       "https://api.openai.com",
       "https://generativelanguage.googleapis.com",
+      "https://models.github.ai",
       "https://design-systems-mcp.southleft-llc.workers.dev"
     ]
   }

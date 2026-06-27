@@ -14,34 +14,8 @@ import {
   RequestHeaders,
   LLMError,
   LLMErrorCode,
+  ANTHROPIC_MODELS,
 } from './types';
-
-/**
- * Available Anthropic Claude models
- */
-export const ANTHROPIC_MODELS: LLMModel[] = [
-  {
-    id: 'claude-opus-4-7',
-    name: 'Claude Opus 4.7',
-    description: 'Flagship model - Most intelligent, best for complex agents and coding',
-    contextWindow: 1000000,
-    isDefault: false,
-  },
-  {
-    id: 'claude-sonnet-4-6',
-    name: 'Claude Sonnet 4.6',
-    description: 'Standard model - Best combination of speed and intelligence, recommended for most tasks',
-    contextWindow: 1000000,
-    isDefault: true,
-  },
-  {
-    id: 'claude-haiku-4-5-20251001',
-    name: 'Claude Haiku 4.5',
-    description: 'Economy model - Fastest with near-frontier intelligence',
-    contextWindow: 200000,
-    isDefault: false,
-  },
-];
 
 /**
  * Anthropic API response structure

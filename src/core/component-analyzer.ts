@@ -3,7 +3,7 @@
 import { ComponentContext, LayerHierarchy, ComponentMetadata, EnhancedAnalysisResult, DetailedAuditResults, AuditCheck, DetachedInstanceInfo, TokenAnalysis, DesignToken, EnhancedAnalysisOptions } from '../types';
 import { extractTextContent, getAllChildNodes } from '../utils/figma-helpers';
 import { extractDesignTokensFromNode } from './token-analyzer';
-import { extractJSONFromResponse, createEnhancedMetadataPrompt, filterDevelopmentRecommendations, createMCPEnhancedAnalysis } from '../api/claude';
+import { extractJSONFromResponse, createEnhancedMetadataPrompt, filterDevelopmentRecommendations } from '../api/claude';
 import { callProvider, ProviderId } from '../api/providers';
 import { analyzeNamingIssues } from '../fixes/naming-fixer';
 import { findMatchingColorVariable, findBestMatchingVariable } from '../fixes/token-fixer';

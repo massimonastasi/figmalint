@@ -14,7 +14,7 @@
 /**
  * Supported LLM provider identifiers
  */
-export type ProviderId = 'anthropic' | 'openai' | 'google';
+export type ProviderId = 'anthropic' | 'openai' | 'google' | 'github';
 
 /**
  * Model tier classification for pricing and capability guidance
@@ -448,6 +448,43 @@ export const GOOGLE_MODELS: LLMModel[] = [
   },
 ];
 
+/**
+ * GitHub Models configuration (OpenAI-compatible inference API).
+ *
+ * Authenticated with a GitHub fine-grained PAT (Models permission). Model IDs
+ * use the catalog's "publisher/model" form. This is GitHub Models — a separate,
+ * rate-limited quota — not a Copilot subscription.
+ */
+export const GITHUB_MODELS: LLMModel[] = [
+  {
+    id: 'openai/gpt-4o',
+    name: 'GPT-4o',
+    description: 'Flagship model - Strong general reasoning and analysis',
+    tier: 'flagship',
+    contextWindow: 128000,
+    maxOutputTokens: 16384,
+    isDefault: false,
+  },
+  {
+    id: 'openai/gpt-4o-mini',
+    name: 'GPT-4o mini',
+    description: 'Standard model - Fast and capable, recommended for most tasks',
+    tier: 'standard',
+    contextWindow: 128000,
+    maxOutputTokens: 16384,
+    isDefault: true,
+  },
+  {
+    id: 'meta/Llama-3.3-70B-Instruct',
+    name: 'Llama 3.3 70B',
+    description: 'Economy model - Open-weight model for high-volume tasks',
+    tier: 'economy',
+    contextWindow: 128000,
+    maxOutputTokens: 8192,
+    isDefault: false,
+  },
+];
+
 // =============================================================================
 // Default Model Configuration
 // =============================================================================
@@ -459,6 +496,7 @@ export const DEFAULT_MODELS: Record<ProviderId, string> = {
   anthropic: 'claude-sonnet-4-6',
   openai: 'gpt-5.4-mini',
   google: 'gemini-3-flash-preview',
+  github: 'openai/gpt-4o-mini',
 };
 
 // =============================================================================
@@ -531,6 +569,9 @@ export function detectProviderFromKey(apiKey: string): ProviderId | undefined {
   if (trimmed.startsWith('AIza') || trimmed.startsWith('AQ.')) {
     return 'google';
   }
+  if (trimmed.startsWith('github_pat_') || trimmed.startsWith('ghp_')) {
+    return 'github';
+  }
 
   return undefined;
 }
@@ -556,6 +597,11 @@ export function validateApiKeyFormat(apiKey: string, providerId: ProviderId): bo
         trimmed.length >= 30 &&
         trimmed.length <= 100
       );
+    case 'github':
+      return (
+        (trimmed.startsWith('github_pat_') || trimmed.startsWith('ghp_')) &&
+        trimmed.length >= 20
+      );
     default:
       return false;
   }
@@ -571,6 +617,7 @@ export function getAllModels(): Array<{ model: LLMModel; providerId: ProviderId 
     ...ANTHROPIC_MODELS.map((model) => ({ model, providerId: 'anthropic' as ProviderId })),
     ...OPENAI_MODELS.map((model) => ({ model, providerId: 'openai' as ProviderId })),
     ...GOOGLE_MODELS.map((model) => ({ model, providerId: 'google' as ProviderId })),
+    ...GITHUB_MODELS.map((model) => ({ model, providerId: 'github' as ProviderId })),
   ];
 }
 
@@ -588,6 +635,8 @@ export function getModelsForProvider(providerId: ProviderId): LLMModel[] {
       return OPENAI_MODELS;
     case 'google':
       return GOOGLE_MODELS;
+    case 'github':
+      return GITHUB_MODELS;
     default:
       return [];
   }
