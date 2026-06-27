@@ -6,8 +6,6 @@ FigmaLint analyzes your components against real standards, surfaces hard-coded v
 
 > **This is an enhanced fork of [southleft/figmalint](https://github.com/southleft/figmalint).** It adds a 4th AI provider (GitHub Models), a reorganized tabbed UI, a header model indicator, build/security fixes, and a dead-code cleanup. See [What's new in this fork](#whats-new-in-this-fork).
 
-**[Install from Figma Community](https://www.figma.com/community/plugin/1521241390290871981/figmalint)**
-
 ## Features
 
 ### Multi-Provider AI Analysis
@@ -79,11 +77,6 @@ Three export formats:
 - **JSON** — Complete analysis data including metadata, token analysis, audit results, naming issues, and properties for programmatic use.
 
 ## Getting Started
-
-### From Figma Community
-
-1. Visit [FigmaLint on Figma Community](https://www.figma.com/community/plugin/1521241390290871981/figmalint)
-2. Click "Install"
 
 ### Manual Installation (Development)
 
